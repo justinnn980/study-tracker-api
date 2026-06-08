@@ -34,4 +34,23 @@ public class JpaTodoRepository implements TodoRepository {
     public void deleteById(Long id) {
         jpaRepository.deleteById(id);
     }
+
+    @Override
+    public List<Todo> findAll(String keyword, Boolean completed) {
+        boolean hasKeyword = keyword != null && !keyword.isBlank();
+
+        if (hasKeyword && completed != null) {
+            return jpaRepository.findByTitleContainingIgnoreCaseAndCompletedOrderByIdAsc(keyword, completed);
+        }
+
+        if (hasKeyword) {
+            return jpaRepository.findByTitleContainingIgnoreCaseOrderByIdAsc(keyword);
+        }
+
+        if (completed != null) {
+            return jpaRepository.findByCompletedOrderByIdAsc(completed);
+        }
+
+        return findAll();
+    }
 }

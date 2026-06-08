@@ -52,9 +52,6 @@ public class TodoService {
 
     @Transactional(readOnly = true)
     public List<Todo> findAll(String keyword, Boolean completed) {
-        return todoRepository.findAll().stream()
-                .filter(todo -> keyword == null || keyword.isBlank() || todo.matchesKeyword(keyword))
-                .filter(todo -> completed == null || todo.isCompleted() == completed)
-                .toList();
+        return todoRepository.findAll(keyword, completed);
     }
 }
