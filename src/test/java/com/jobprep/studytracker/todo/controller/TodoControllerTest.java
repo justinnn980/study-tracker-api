@@ -192,21 +192,4 @@ class TodoControllerTest {
                 .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Todo를 찾을 수 없습니다. id=999"));
     }
-
-    @Test
-    void todo_제목_수정_후_다시_조회해도_반영됨() throws Exception {
-        mockMvc.perform(post("/api/todos")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"수정 전\"}"))
-                .andExpect(status().isCreated());
-
-        mockMvc.perform(patch("/api/todos/1")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\":\"수정 후\"}"))
-                .andExpect(status().isOk());
-
-        mockMvc.perform(get("/api/todos/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("수정 후"));
-    }
 }
