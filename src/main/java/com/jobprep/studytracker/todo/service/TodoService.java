@@ -4,10 +4,12 @@ import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.todo.repository.TodoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class TodoService {
     private final TodoRepository todoRepository;
 
@@ -19,6 +21,7 @@ public class TodoService {
         return todoRepository.save(title);
     }
 
+    @Transactional(readOnly = true)
     public Todo findById(Long id) {
         return todoRepository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
@@ -47,6 +50,7 @@ public class TodoService {
         return todo;
     }
 
+    @Transactional(readOnly = true)
     public List<Todo> findAll(String keyword, Boolean completed) {
         return todoRepository.findAll().stream()
                 .filter(todo -> keyword == null || keyword.isBlank() || todo.matchesKeyword(keyword))
