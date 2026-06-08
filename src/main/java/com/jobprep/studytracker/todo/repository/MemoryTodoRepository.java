@@ -14,7 +14,7 @@ public class MemoryTodoRepository implements TodoRepository {
 
     @Override
     public Todo save(String title) {
-        Todo todo = Todo.createForMemory(++sequence, title);
+        Todo todo = new Todo(++sequence, title);
         todos.add(todo);
         return todo;
     }

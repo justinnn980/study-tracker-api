@@ -4,12 +4,10 @@ import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.todo.repository.TodoRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 public class TodoService {
     private final TodoRepository todoRepository;
 
