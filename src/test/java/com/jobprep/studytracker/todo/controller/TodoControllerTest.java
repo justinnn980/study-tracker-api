@@ -93,4 +93,103 @@ class TodoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
+
+    @Test
+    void todo_제목_수정_성공() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Java 공부\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Spring 공부\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("Spring 공부"))
+                .andExpect(jsonPath("$.completed").value(false));
+    }
+
+    @Test
+    void todo_제목_수정_실패_title이_비어있음() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Java 공부\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_ERROR"))
+                .andExpect(jsonPath("$.message").value("할 일 제목은 비어 있을 수 없습니다."));
+    }
+
+    @Test
+    void todo_완료_취소_성공() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"완료 취소 테스트\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1/complete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.completed").value(true));
+
+        mockMvc.perform(patch("/api/todos/1/uncomplete"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value("완료 취소 테스트"))
+                .andExpect(jsonPath("$.completed").value(false));
+    }
+
+    @Test
+    void todo_keyword_검색_성공() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"Java 공부\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"운동하기\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/todos?keyword=java"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Java 공부"));
+    }
+
+    @Test
+    void todo_completed_true_필터_성공() throws Exception {
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"완료할 일\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/todos")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"미완료할 일\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1/complete"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/todos?completed=true"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("완료할 일"))
+                .andExpect(jsonPath("$[0].completed").value(true));
+    }
+
+    @Test
+    void 존재하지_않는_todo_수정_실패() throws Exception {
+        mockMvc.perform(patch("/api/todos/999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"없는 Todo 수정\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Todo를 찾을 수 없습니다. id=999"));
+    }
 }
