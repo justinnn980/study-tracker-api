@@ -41,6 +41,12 @@ public class Todo {
         this.completed = false;
     }
 
+    public static Todo createForMemory(Long id, String title) {
+        Todo todo = new Todo(title);
+        todo.id = id;
+        return todo;
+    }
+
     public void complete() {
         this.completed = true;
     }
