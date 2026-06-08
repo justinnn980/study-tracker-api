@@ -27,7 +27,7 @@ class TodoControllerTest {
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Java 공부\"}"))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("Java 공부"))
                 .andExpect(jsonPath("$.completed").value(false));
@@ -48,7 +48,7 @@ class TodoControllerTest {
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Spring 공부\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(get("/api/todos"))
                 .andExpect(status().isOk())
@@ -62,7 +62,7 @@ class TodoControllerTest {
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"완료 테스트\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(patch("/api/todos/1/complete"))
                 .andExpect(status().isOk())
@@ -84,10 +84,10 @@ class TodoControllerTest {
         mockMvc.perform(post("/api/todos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"삭제 테스트\"}"))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         mockMvc.perform(delete("/api/todos/1"))
-                .andExpect(status().isOk());
+                .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/todos"))
                 .andExpect(status().isOk())

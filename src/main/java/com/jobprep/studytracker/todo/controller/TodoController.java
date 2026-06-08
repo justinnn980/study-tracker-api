@@ -4,6 +4,8 @@ import com.jobprep.studytracker.todo.dto.CreateTodoRequest;
 import com.jobprep.studytracker.todo.dto.TodoResponse;
 import com.jobprep.studytracker.todo.service.TodoService;
 import com.jobprep.studytracker.todo.domain.Todo;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import java.util.List;
@@ -18,9 +20,10 @@ public class TodoController {
     }
 
     @PostMapping
-    public TodoResponse create(@Valid @RequestBody CreateTodoRequest request) {
+    public ResponseEntity<TodoResponse> create(@Valid @RequestBody CreateTodoRequest request) {
         Todo todo = todoService.add(request.title());
-        return TodoResponse.from(todo);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(TodoResponse.from(todo));
     }
 
     @GetMapping
@@ -41,8 +44,9 @@ public class TodoController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         todoService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")
