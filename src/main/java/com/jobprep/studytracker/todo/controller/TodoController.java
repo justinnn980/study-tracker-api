@@ -1,6 +1,7 @@
 package com.jobprep.studytracker.todo.controller;
 
 import com.jobprep.studytracker.todo.dto.CreateTodoRequest;
+import com.jobprep.studytracker.todo.dto.UpdateTodoRequest;
 import com.jobprep.studytracker.todo.dto.TodoResponse;
 import com.jobprep.studytracker.todo.service.TodoService;
 import com.jobprep.studytracker.todo.domain.Todo;
@@ -27,8 +28,11 @@ public class TodoController {
     }
 
     @GetMapping
-    public List<TodoResponse> findAll() {
-        return todoService.findAll().stream()
+    public List<TodoResponse> findAll(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean completed
+    ) {
+        return todoService.findAll(keyword, completed).stream()
                 .map(TodoResponse::from)
                 .toList();
     }
@@ -49,12 +53,16 @@ public class TodoController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/search")
-    public List<TodoResponse> search(@RequestParam String keyword) {
-        return todoService.search(keyword).stream()
-                .map(TodoResponse::from)
-                .toList();
+    @PatchMapping("/{id}")
+    public TodoResponse updateTitle(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateTodoRequest request
+    ) {
+        return TodoResponse.from(todoService.updateTitle(id, request.title()));
     }
 
-
+    @PatchMapping("/{id}/uncomplete")
+    public TodoResponse uncomplete(@PathVariable Long id) {
+        return TodoResponse.from(todoService.uncomplete(id));
+    }
 }

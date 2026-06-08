@@ -19,10 +19,6 @@ public class TodoService {
         return todoRepository.save(title);
     }
 
-    public List<Todo> findAll() {
-        return todoRepository.findAll();
-    }
-
     public Todo findById(Long id) {
         return todoRepository.findById(id)
                 .orElseThrow(() -> new TodoNotFoundException(id));
@@ -39,9 +35,22 @@ public class TodoService {
         todoRepository.deleteById(id);
     }
 
-    public List<Todo> search(String keyword) {
+    public Todo updateTitle(Long id, String title) {
+        Todo todo = findById(id);
+        todo.changeTitle(title);
+        return todo;
+    }
+
+    public Todo uncomplete(Long id) {
+        Todo todo = findById(id);
+        todo.uncomplete();
+        return todo;
+    }
+
+    public List<Todo> findAll(String keyword, Boolean completed) {
         return todoRepository.findAll().stream()
-                .filter(todo -> todo.matchesKeyword(keyword))
+                .filter(todo -> keyword == null || keyword.isBlank() || todo.matchesKeyword(keyword))
+                .filter(todo -> completed == null || todo.isCompleted() == completed)
                 .toList();
     }
 }

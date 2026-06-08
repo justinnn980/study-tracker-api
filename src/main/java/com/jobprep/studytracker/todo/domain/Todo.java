@@ -2,7 +2,7 @@ package com.jobprep.studytracker.todo.domain;
 
 public class Todo {
     private final Long id;
-    private final String title;
+    private String title;
     private boolean completed;
 
     public Todo(Long id, String title) {
@@ -37,5 +37,17 @@ public class Todo {
 
     public boolean isCompleted() {
         return completed;
+    }
+
+    public void changeTitle(String title) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("할일 제목은 비어있을 수 없습니다.");
+        }
+
+        this.title = title;
+    }
+
+    public void uncomplete() {
+        this.completed = false;
     }
 }
