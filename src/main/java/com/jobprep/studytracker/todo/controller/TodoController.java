@@ -5,7 +5,7 @@ import com.jobprep.studytracker.todo.dto.TodoResponse;
 import com.jobprep.studytracker.todo.service.TodoService;
 import com.jobprep.studytracker.todo.domain.Todo;
 import org.springframework.web.bind.annotation.*;
-
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -18,7 +18,7 @@ public class TodoController {
     }
 
     @PostMapping
-    public TodoResponse create(@RequestBody CreateTodoRequest request) {
+    public TodoResponse create(@Valid @RequestBody CreateTodoRequest request) {
         Todo todo = todoService.add(request.title());
         return TodoResponse.from(todo);
     }
@@ -51,4 +51,6 @@ public class TodoController {
                 .map(TodoResponse::from)
                 .toList();
     }
+
+
 }
