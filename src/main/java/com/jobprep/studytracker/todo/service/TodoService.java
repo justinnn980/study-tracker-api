@@ -3,9 +3,11 @@ package com.jobprep.studytracker.todo.service;
 import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.todo.repository.TodoRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class TodoService {
     private final TodoRepository todoRepository;
 
