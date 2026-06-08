@@ -1,0 +1,19 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: study-tracker-mysql
+    environment:
+      MYSQL_DATABASE: study_tracker
+      MYSQL_USER: study
+      MYSQL_PASSWORD: study1234
+      MYSQL_ROOT_PASSWORD: root1234
+    ports:
+      - "3306:3306"
+    volumes:
+      - study-tracker-mysql-data:/var/lib/mysql
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+
+volumes:
+  study-tracker-mysql-data:

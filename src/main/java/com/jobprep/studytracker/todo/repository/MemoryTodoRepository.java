@@ -35,4 +35,12 @@ public class MemoryTodoRepository implements TodoRepository {
     public void deleteById(Long id) {
         todos.removeIf(todo -> todo.getId().equals(id));
     }
+
+    @Override
+    public List<Todo> findAll(String keyword, Boolean completed) {
+        return findAll().stream()
+                .filter(todo -> keyword == null || keyword.isBlank() || todo.matchesKeyword(keyword))
+                .filter(todo -> completed == null || todo.isCompleted() == completed)
+                .toList();
+    }
 }
