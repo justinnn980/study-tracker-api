@@ -57,9 +57,9 @@ class UserControllerTest {
                                   "password": "password123",
                                   "name": "테스터2"
                                 }
-                                """))
+                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.code").value("DUPLICATE_EMAIL"))
                 .andExpect(jsonPath("$.message").value("이미 사용 중인 이메일입니다."));
     }
 

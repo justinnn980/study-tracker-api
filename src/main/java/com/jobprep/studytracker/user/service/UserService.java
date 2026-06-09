@@ -1,6 +1,7 @@
 package com.jobprep.studytracker.user.service;
 
 import com.jobprep.studytracker.user.domain.User;
+import com.jobprep.studytracker.user.exception.DuplicateEmailException;
 import com.jobprep.studytracker.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class UserService {
 
     public User signup(String email, String password, String name) {
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new DuplicateEmailException();
         }
 
         String encodedPassword = passwordEncoder.encode(password);

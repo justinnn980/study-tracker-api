@@ -4,6 +4,7 @@ import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.todo.repository.TodoRepository;
 import com.jobprep.studytracker.user.domain.User;
+import com.jobprep.studytracker.user.exception.UserNotFoundException;
 import com.jobprep.studytracker.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ public class TodoService {
 
     public Todo add(Long userId, String title) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다. id=" + userId));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         return todoRepository.save(title, user);
     }

@@ -1,6 +1,9 @@
 package com.jobprep.studytracker.global.error;
 
+import com.jobprep.studytracker.auth.exception.AuthException;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
+import com.jobprep.studytracker.user.exception.DuplicateEmailException;
+import com.jobprep.studytracker.user.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,11 +18,30 @@ public class GlobalExceptionHandler {
                 .body(new ErrorResponse("TODO_NOT_FOUND", e.getMessage()));
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handleAuth(AuthException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("AUTH_FAILED", e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("DUPLICATE_EMAIL", e.getMessage()));
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("USER_NOT_FOUND", e.getMessage()));
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse("BAD_REQUEST", e.getMessage()));
     }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
         String message = e.getBindingResult()

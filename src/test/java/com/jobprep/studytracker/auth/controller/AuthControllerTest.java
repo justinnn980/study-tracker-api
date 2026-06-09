@@ -48,9 +48,9 @@ class AuthControllerTest {
                                   "email": "none@example.com",
                                   "password": "password123"
                                 }
-                                """))
+                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.code").value("AUTH_FAILED"))
                 .andExpect(jsonPath("$.message").value("이메일 또는 비밀번호가 올바르지 않습니다."));
     }
 
@@ -65,9 +65,9 @@ class AuthControllerTest {
                                   "email": "test@example.com",
                                   "password": "wrongpassword"
                                 }
-                                """))
+                """))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.code").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.code").value("AUTH_FAILED"))
                 .andExpect(jsonPath("$.message").value("이메일 또는 비밀번호가 올바르지 않습니다."));
     }
 
