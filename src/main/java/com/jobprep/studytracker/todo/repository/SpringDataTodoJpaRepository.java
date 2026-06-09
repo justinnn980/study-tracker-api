@@ -20,4 +20,8 @@ public interface SpringDataTodoJpaRepository extends JpaRepository<Todo, Long> {
             String keyword,
             boolean completed
     );
+
+    long countByUserId(Long userId);
+
+    long countByUserIdAndCompleted(Long userId, boolean completed);
 }

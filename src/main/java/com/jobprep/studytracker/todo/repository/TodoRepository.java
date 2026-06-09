@@ -14,4 +14,8 @@ public interface TodoRepository {
     void delete(Todo todo);
 
     List<Todo> findAll(Long userId, String keyword, Boolean completed);
+
+    long countByUserId(Long userId);
+
+    long countByUserIdAndCompleted(Long userId, boolean completed);
 }

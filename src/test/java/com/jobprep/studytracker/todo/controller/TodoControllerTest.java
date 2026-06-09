@@ -231,6 +231,34 @@ class TodoControllerTest {
     }
 
     @Test
+    void todo_통계_조회_성공() throws Exception {
+        String authorization = authorizationHeader();
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"완료할 일\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"미완료할 일\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1/complete")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/todos/stats")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalCount").value(2))
+                .andExpect(jsonPath("$.completedCount").value(1))
+                .andExpect(jsonPath("$.activeCount").value(1));
+    }
+
+    @Test
     void 존재하지_않는_todo_수정_실패() throws Exception {
         String authorization = authorizationHeader();
 

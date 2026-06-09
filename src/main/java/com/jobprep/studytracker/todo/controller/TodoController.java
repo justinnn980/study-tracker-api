@@ -4,6 +4,7 @@ import com.jobprep.studytracker.auth.security.AuthUser;
 import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.dto.CreateTodoRequest;
 import com.jobprep.studytracker.todo.dto.TodoResponse;
+import com.jobprep.studytracker.todo.dto.TodoStatsResponse;
 import com.jobprep.studytracker.todo.dto.UpdateTodoRequest;
 import com.jobprep.studytracker.todo.service.TodoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -62,6 +63,13 @@ public class TodoController {
         return todoService.findAll(authUser.id(), keyword, completed).stream()
                 .map(TodoResponse::from)
                 .toList();
+    }
+
+    @Operation(summary = "Todo 통계 조회")
+    @ApiResponse(responseCode = "200", description = "Todo 통계 조회 성공")
+    @GetMapping("/stats")
+    public TodoStatsResponse stats(@AuthenticationPrincipal AuthUser authUser) {
+        return todoService.findStats(authUser.id());
     }
 
     @Operation(summary = "Todo 단건 조회")

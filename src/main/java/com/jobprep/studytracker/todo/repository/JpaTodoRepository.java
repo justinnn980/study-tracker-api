@@ -52,4 +52,14 @@ public class JpaTodoRepository implements TodoRepository {
 
         return jpaRepository.findByUserIdOrderByIdAsc(userId);
     }
+
+    @Override
+    public long countByUserId(Long userId) {
+        return jpaRepository.countByUserId(userId);
+    }
+
+    @Override
+    public long countByUserIdAndCompleted(Long userId, boolean completed) {
+        return jpaRepository.countByUserIdAndCompleted(userId, completed);
+    }
 }

@@ -53,4 +53,16 @@ class TodoServiceTest {
 
         verify(todoRepository).delete(todo);
     }
+
+    @Test
+    void todo_통계를_조회한다() {
+        when(todoRepository.countByUserId(1L)).thenReturn(3L);
+        when(todoRepository.countByUserIdAndCompleted(1L, true)).thenReturn(2L);
+
+        var result = todoService.findStats(1L);
+
+        assertThat(result.totalCount()).isEqualTo(3L);
+        assertThat(result.completedCount()).isEqualTo(2L);
+        assertThat(result.activeCount()).isEqualTo(1L);
+    }
 }
