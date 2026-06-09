@@ -1,6 +1,8 @@
 package com.jobprep.studytracker.global.error;
 
 import com.jobprep.studytracker.auth.exception.AuthException;
+import com.jobprep.studytracker.auth.exception.ExpiredRefreshTokenException;
+import com.jobprep.studytracker.auth.exception.InvalidRefreshTokenException;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.user.exception.DuplicateEmailException;
 import com.jobprep.studytracker.user.exception.UserNotFoundException;
@@ -22,6 +24,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuth(AuthException e) {
         return ResponseEntity.badRequest()
                 .body(new ErrorResponse("AUTH_FAILED", e.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidRefreshToken(InvalidRefreshTokenException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("INVALID_REFRESH_TOKEN", e.getMessage()));
+    }
+
+    @ExceptionHandler(ExpiredRefreshTokenException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredRefreshToken(ExpiredRefreshTokenException e) {
+        return ResponseEntity.badRequest()
+                .body(new ErrorResponse("EXPIRED_REFRESH_TOKEN", e.getMessage()));
     }
 
     @ExceptionHandler(DuplicateEmailException.class)

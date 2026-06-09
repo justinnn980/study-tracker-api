@@ -1,0 +1,16 @@
+name: study-tracker-api-prod
+
+services:
+  app:
+    build: .
+    container_name: study-tracker-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mysql://RDS_ENDPOINT:3306/study_tracker?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+      DB_USERNAME: study
+      DB_PASSWORD: CHANGE_ME
+      JWT_SECRET: CHANGE_ME_TO_LONG_RANDOM_SECRET
+      JWT_ACCESS_TOKEN_EXPIRATION_MILLIS: 3600000
+      JWT_REFRESH_TOKEN_EXPIRATION_DAYS: 14

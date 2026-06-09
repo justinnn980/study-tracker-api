@@ -6,14 +6,16 @@ public record LoginResponse(
         Long id,
         String email,
         String name,
-        String accessToken
+        String accessToken,
+        String refreshToken
 ) {
-    public static LoginResponse of(User user, String accessToken) {
+    public static LoginResponse of(User user, String accessToken, String refreshToken) {
         return new LoginResponse(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
-                accessToken
+                accessToken,
+                refreshToken
         );
     }
 }
