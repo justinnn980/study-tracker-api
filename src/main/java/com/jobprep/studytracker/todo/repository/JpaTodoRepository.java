@@ -1,7 +1,7 @@
 package com.jobprep.studytracker.todo.repository;
 
 import com.jobprep.studytracker.todo.domain.Todo;
-import org.springframework.data.domain.Sort;
+import com.jobprep.studytracker.user.domain.User;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,41 +16,40 @@ public class JpaTodoRepository implements TodoRepository {
     }
 
     @Override
-    public Todo save(String title) {
-        return jpaRepository.save(new Todo(title));
+    public Todo save(String title, User user) {
+        return jpaRepository.save(new Todo(title, user));
     }
 
     @Override
-    public List<Todo> findAll() {
-        return jpaRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    public Optional<Todo> findByIdAndUserId(Long id, Long userId) {
+        return jpaRepository.findByIdAndUserId(id, userId);
     }
 
     @Override
-    public Optional<Todo> findById(Long id) {
-        return jpaRepository.findById(id);
+    public void delete(Todo todo) {
+        jpaRepository.delete(todo);
     }
 
     @Override
-    public void deleteById(Long id) {
-        jpaRepository.deleteById(id);
-    }
-
-    @Override
-    public List<Todo> findAll(String keyword, Boolean completed) {
+    public List<Todo> findAll(Long userId, String keyword, Boolean completed) {
         boolean hasKeyword = keyword != null && !keyword.isBlank();
 
         if (hasKeyword && completed != null) {
-            return jpaRepository.findByTitleContainingIgnoreCaseAndCompletedOrderByIdAsc(keyword, completed);
+            return jpaRepository.findByUserIdAndTitleContainingIgnoreCaseAndCompletedOrderByIdAsc(
+                    userId,
+                    keyword,
+                    completed
+            );
         }
 
         if (hasKeyword) {
-            return jpaRepository.findByTitleContainingIgnoreCaseOrderByIdAsc(keyword);
+            return jpaRepository.findByUserIdAndTitleContainingIgnoreCaseOrderByIdAsc(userId, keyword);
         }
 
         if (completed != null) {
-            return jpaRepository.findByCompletedOrderByIdAsc(completed);
+            return jpaRepository.findByUserIdAndCompletedOrderByIdAsc(userId, completed);
         }
 
-        return findAll();
+        return jpaRepository.findByUserIdOrderByIdAsc(userId);
     }
 }

@@ -1,18 +1,17 @@
 package com.jobprep.studytracker.todo.repository;
 
 import com.jobprep.studytracker.todo.domain.Todo;
+import com.jobprep.studytracker.user.domain.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface TodoRepository {
-    Todo save(String title);
+    Todo save(String title, User user);
 
-    List<Todo> findAll();
+    Optional<Todo> findByIdAndUserId(Long id, Long userId);
 
-    Optional<Todo> findById(Long id);
+    void delete(Todo todo);
 
-    void deleteById(Long id);
-
-    List<Todo> findAll(String keyword, Boolean completed);
+    List<Todo> findAll(Long userId, String keyword, Boolean completed);
 }

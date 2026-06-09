@@ -265,17 +265,97 @@ class TodoControllerTest {
                 .andExpect(jsonPath("$.title").value("수정 후"));
     }
 
+    @Test
+    void 다른_사용자의_todo는_목록에_보이지_않음() throws Exception {
+        String ownerAuthorization = authorizationHeader("owner@example.com", "소유자");
+        String otherAuthorization = authorizationHeader("other@example.com", "다른 사용자");
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, ownerAuthorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"소유자의 Todo\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, otherAuthorization))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    void 다른_사용자의_todo_조회_실패() throws Exception {
+        String ownerAuthorization = authorizationHeader("owner@example.com", "소유자");
+        String otherAuthorization = authorizationHeader("other@example.com", "다른 사용자");
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, ownerAuthorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"소유자의 Todo\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, otherAuthorization))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Todo를 찾을 수 없습니다. id=1"));
+    }
+
+    @Test
+    void 다른_사용자의_todo_수정_실패() throws Exception {
+        String ownerAuthorization = authorizationHeader("owner@example.com", "소유자");
+        String otherAuthorization = authorizationHeader("other@example.com", "다른 사용자");
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, ownerAuthorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"소유자의 Todo\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(patch("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, otherAuthorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"수정 시도\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"));
+    }
+
+    @Test
+    void 다른_사용자의_todo_삭제_실패() throws Exception {
+        String ownerAuthorization = authorizationHeader("owner@example.com", "소유자");
+        String otherAuthorization = authorizationHeader("other@example.com", "다른 사용자");
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, ownerAuthorization)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"소유자의 Todo\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(delete("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, otherAuthorization))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"));
+
+        mockMvc.perform(get("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, ownerAuthorization))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("소유자의 Todo"));
+    }
+
     private String authorizationHeader() throws Exception {
-        signup();
+        return authorizationHeader("todo-user@example.com", "Todo 사용자");
+    }
+
+    private String authorizationHeader(String email, String name) throws Exception {
+        signup(email, name);
 
         String response = mockMvc.perform(post("/api/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "todo-user@example.com",
+                                  "email": "%s",
                                   "password": "password123"
                                 }
-                                """))
+                                """.formatted(email)))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -285,16 +365,16 @@ class TodoControllerTest {
         return "Bearer " + accessToken;
     }
 
-    private void signup() throws Exception {
+    private void signup(String email, String name) throws Exception {
         mockMvc.perform(post("/api/users/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
-                                  "email": "todo-user@example.com",
+                                  "email": "%s",
                                   "password": "password123",
-                                  "name": "Todo 사용자"
+                                  "name": "%s"
                                 }
-                                """))
+                                """.formatted(email, name)))
                 .andExpect(status().isCreated());
     }
 }
