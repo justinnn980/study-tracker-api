@@ -34,7 +34,8 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.email").value("test@example.com"))
-                .andExpect(jsonPath("$.name").value("테스터"));
+                .andExpect(jsonPath("$.name").value("테스터"))
+                .andExpect(jsonPath("$.accessToken").isNotEmpty());
     }
 
     @Test
