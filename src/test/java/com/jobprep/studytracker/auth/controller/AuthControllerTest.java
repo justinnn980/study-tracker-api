@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,5 +82,36 @@ class AuthControllerTest {
                                 }
                                 """))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    void 내_정보_조회_성공() throws Exception {
+        signup();
+
+        String response = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                            {
+                              "email": "test@example.com",
+                              "password": "password123"
+                            }
+                            """))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String accessToken = response.split("\"accessToken\":\"")[1].split("\"")[0];
+
+        mockMvc.perform(get("/api/auth/me")
+                        .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.email").value("test@example.com"));
+    }
+
+    @Test
+    void 내_정보_조회_실패_토큰_없음() throws Exception {
+        mockMvc.perform(get("/api/auth/me"))
+                .andExpect(status().isUnauthorized());
     }
 }

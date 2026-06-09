@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,7 +25,10 @@ class TodoControllerTest {
 
     @Test
     void todo_생성_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Java 공부\"}"))
                 .andExpect(status().isCreated())
@@ -35,7 +39,10 @@ class TodoControllerTest {
 
     @Test
     void todo_생성_실패_title이_비어있음() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\"}"))
                 .andExpect(status().isBadRequest())
@@ -45,12 +52,16 @@ class TodoControllerTest {
 
     @Test
     void todo_전체_조회_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Spring 공부\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/api/todos"))
+        mockMvc.perform(get("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].title").value("Spring 공부"))
@@ -59,12 +70,16 @@ class TodoControllerTest {
 
     @Test
     void todo_완료_처리_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"완료 테스트\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(patch("/api/todos/1/complete"))
+        mockMvc.perform(patch("/api/todos/1/complete")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("완료 테스트"))
@@ -73,7 +88,10 @@ class TodoControllerTest {
 
     @Test
     void 존재하지_않는_todo_조회_실패() throws Exception {
-        mockMvc.perform(get("/api/todos/999"))
+        String authorization = authorizationHeader();
+
+        mockMvc.perform(get("/api/todos/999")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("TODO_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("Todo를 찾을 수 없습니다. id=999"));
@@ -81,27 +99,36 @@ class TodoControllerTest {
 
     @Test
     void todo_삭제_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"삭제 테스트\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(delete("/api/todos/1"))
+        mockMvc.perform(delete("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/api/todos"))
+        mockMvc.perform(get("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
     void todo_제목_수정_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Java 공부\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(patch("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Spring 공부\"}"))
                 .andExpect(status().isOk())
@@ -112,12 +139,16 @@ class TodoControllerTest {
 
     @Test
     void todo_제목_수정_실패_title이_비어있음() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Java 공부\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(patch("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"\"}"))
                 .andExpect(status().isBadRequest())
@@ -127,16 +158,21 @@ class TodoControllerTest {
 
     @Test
     void todo_완료_취소_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"완료 취소 테스트\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(patch("/api/todos/1/complete"))
+        mockMvc.perform(patch("/api/todos/1/complete")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.completed").value(true));
 
-        mockMvc.perform(patch("/api/todos/1/uncomplete"))
+        mockMvc.perform(patch("/api/todos/1/uncomplete")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.title").value("완료 취소 테스트"))
@@ -145,17 +181,22 @@ class TodoControllerTest {
 
     @Test
     void todo_keyword_검색_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"Java 공부\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"운동하기\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(get("/api/todos?keyword=java"))
+        mockMvc.perform(get("/api/todos?keyword=java")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].title").value("Java 공부"));
@@ -163,20 +204,26 @@ class TodoControllerTest {
 
     @Test
     void todo_completed_true_필터_성공() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"완료할 일\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"미완료할 일\"}"))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(patch("/api/todos/1/complete"))
+        mockMvc.perform(patch("/api/todos/1/complete")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/todos?completed=true"))
+        mockMvc.perform(get("/api/todos?completed=true")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].title").value("완료할 일"))
@@ -185,7 +232,10 @@ class TodoControllerTest {
 
     @Test
     void 존재하지_않는_todo_수정_실패() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(patch("/api/todos/999")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"없는 Todo 수정\"}"))
                 .andExpect(status().isNotFound())
@@ -195,18 +245,56 @@ class TodoControllerTest {
 
     @Test
     void todo_제목_수정_후_다시_조회해도_반영됨() throws Exception {
+        String authorization = authorizationHeader();
+
         mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"수정 전\"}"))
                 .andExpect(status().isCreated());
 
         mockMvc.perform(patch("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"title\":\"수정 후\"}"))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/todos/1"))
+        mockMvc.perform(get("/api/todos/1")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("수정 후"));
+    }
+
+    private String authorizationHeader() throws Exception {
+        signup();
+
+        String response = mockMvc.perform(post("/api/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "todo-user@example.com",
+                                  "password": "password123"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String accessToken = response.split("\"accessToken\":\"")[1].split("\"")[0];
+        return "Bearer " + accessToken;
+    }
+
+    private void signup() throws Exception {
+        mockMvc.perform(post("/api/users/signup")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "email": "todo-user@example.com",
+                                  "password": "password123",
+                                  "name": "Todo 사용자"
+                                }
+                                """))
+                .andExpect(status().isCreated());
     }
 }
