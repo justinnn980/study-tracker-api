@@ -1,6 +1,7 @@
 package com.jobprep.studytracker.todo.controller;
 
 import com.jobprep.studytracker.auth.security.AuthUser;
+import com.jobprep.studytracker.global.idempotency.IdempotencyService;
 import com.jobprep.studytracker.todo.domain.Todo;
 import com.jobprep.studytracker.todo.dto.CreateTodoRequest;
 import com.jobprep.studytracker.todo.dto.TodoResponse;
@@ -8,6 +9,7 @@ import com.jobprep.studytracker.todo.dto.TodoStatsResponse;
 import com.jobprep.studytracker.todo.dto.UpdateTodoRequest;
 import com.jobprep.studytracker.todo.service.TodoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -32,22 +35,33 @@ import java.util.List;
 @Tag(name = "Todo API", description = "할 일 생성, 조회, 수정, 완료, 삭제 API")
 public class TodoController {
     private final TodoService todoService;
+    private final IdempotencyService idempotencyService;
 
-    public TodoController(TodoService todoService) {
+    public TodoController(TodoService todoService, IdempotencyService idempotencyService) {
         this.todoService = todoService;
+        this.idempotencyService = idempotencyService;
     }
 
     @Operation(summary = "Todo 생성")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Todo 생성 성공"),
-            @ApiResponse(responseCode = "400", description = "요청 검증 실패")
+            @ApiResponse(responseCode = "400", description = "요청 검증 실패"),
+            @ApiResponse(responseCode = "409", description = "중복 요청")
     })
     @PostMapping
     public ResponseEntity<TodoResponse> create(
             @AuthenticationPrincipal AuthUser authUser,
+            @Parameter(description = "같은 생성 요청이 중복 처리되지 않도록 하는 요청 고유 키")
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody CreateTodoRequest request
     ) {
-        Todo todo = todoService.add(authUser.id(), request.title());
+        Todo todo = idempotencyService.executeOnce(
+                authUser.id(),
+                "todo:create",
+                idempotencyKey,
+                () -> todoService.add(authUser.id(), request.title())
+        );
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(TodoResponse.from(todo));
     }

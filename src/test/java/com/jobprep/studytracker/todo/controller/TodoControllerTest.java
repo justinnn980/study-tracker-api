@@ -51,6 +51,32 @@ class TodoControllerTest {
     }
 
     @Test
+    void 같은_idempotency_key로_todo를_두_번_생성하면_두_번째는_실패한다() throws Exception {
+        String authorization = authorizationHeader();
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .header("Idempotency-Key", "todo-create-001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"중복 방지 테스트\"}"))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization)
+                        .header("Idempotency-Key", "todo-create-001")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"title\":\"중복 방지 테스트\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.code").value("DUPLICATE_REQUEST"))
+                .andExpect(jsonPath("$.message").value("이미 처리 중이거나 처리된 요청입니다."));
+
+        mockMvc.perform(get("/api/todos")
+                        .header(HttpHeaders.AUTHORIZATION, authorization))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1));
+    }
+
+    @Test
     void todo_전체_조회_성공() throws Exception {
         String authorization = authorizationHeader();
 

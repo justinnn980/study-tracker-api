@@ -3,6 +3,7 @@ package com.jobprep.studytracker.global.error;
 import com.jobprep.studytracker.auth.exception.AuthException;
 import com.jobprep.studytracker.auth.exception.ExpiredRefreshTokenException;
 import com.jobprep.studytracker.auth.exception.InvalidRefreshTokenException;
+import com.jobprep.studytracker.global.exception.DuplicateRequestException;
 import com.jobprep.studytracker.todo.exception.TodoNotFoundException;
 import com.jobprep.studytracker.user.exception.DuplicateEmailException;
 import com.jobprep.studytracker.user.exception.UserNotFoundException;
@@ -48,6 +49,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleUserNotFound(UserNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ErrorResponse("USER_NOT_FOUND", e.getMessage()));
+    }
+
+    @ExceptionHandler(DuplicateRequestException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateRequest(DuplicateRequestException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("DUPLICATE_REQUEST", e.getMessage()));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
