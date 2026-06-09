@@ -8,8 +8,8 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:mysql://RDS_ENDPOINT:3306/study_tracker?useSSL=false&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
-      DB_USERNAME: study
+      DB_URL: jdbc:postgresql://POSTGRES_HOST:5432/study_tracker
+      DB_USERNAME: study_tracker_user
       DB_PASSWORD: CHANGE_ME
       JWT_SECRET: CHANGE_ME_TO_LONG_RANDOM_SECRET
       JWT_ACCESS_TOKEN_EXPIRATION_MILLIS: 3600000

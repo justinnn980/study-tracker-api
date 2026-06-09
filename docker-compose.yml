@@ -1,21 +1,17 @@
 name: study-tracker-api
 
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: study-tracker-mysql
+  postgres:
+    image: postgres:18
+    container_name: study-tracker-postgres
     ports:
-      - "3306:3306"
+      - "5432:5432"
     environment:
-      MYSQL_DATABASE: study_tracker
-      MYSQL_USER: study
-      MYSQL_PASSWORD: study
-      MYSQL_ROOT_PASSWORD: root
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
+      POSTGRES_DB: study_tracker
+      POSTGRES_USER: study
+      POSTGRES_PASSWORD: study
     volumes:
-      - mysql-data:/var/lib/mysql
+      - postgres-data:/var/lib/postgresql/data
 
 volumes:
-  mysql-data:
+  postgres-data:
