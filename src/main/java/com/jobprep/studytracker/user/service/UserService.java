@@ -2,6 +2,7 @@ package com.jobprep.studytracker.user.service;
 
 import com.jobprep.studytracker.user.domain.User;
 import com.jobprep.studytracker.user.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,9 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder
+    ) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public User signup(String email, String password, String name) {
@@ -19,6 +25,7 @@ public class UserService {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
-        return userRepository.save(new User(email, password, name));
+        String encodedPassword = passwordEncoder.encode(password);
+        return userRepository.save(new User(email, encodedPassword, name));
     }
 }
